@@ -3,17 +3,23 @@ import numpy as np
 import sympy as sp
 from turtle import Screen, Turtle, Vec2D
 import sdxf
+import os
 
-def read_dat(file):
+def read_dat():
     headers = ['MFLOWR','CCTEMP','CCPRES','AMPRES',
                 'EXPRES','K','M']
     params = [0,0,0,0,0,0,0,0,0,0,0,0]
 
-    with open(file) as f:
-        content = f.readlines()
+    dat = open('modules/tfile.dat', "r")
+    content = dat.readlines()
+    dat.close()
+
+    os.remove("modules/tfile.dat") 
 
     for i in range(len(content)):
         line = content[i].split()
+
+        print(line)
 
         try:
             if line[0] == headers[0]:
@@ -190,10 +196,8 @@ def build():
 
     return pt
 
+if __name__ == '__main__':
+    params = noz_vals(read_dat())
 
-    
-filename = r'D:/arsen/Documents/jhu/Missiles/builder/testcases/nozzle.txt'
-params = noz_vals(read_dat(filename))
-print(params)
+    print(build())
 
-print(build())
