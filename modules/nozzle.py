@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import sympy as sp
 from turtle import Screen, Turtle, Vec2D
+import sdxf
 
 def read_dat(file):
     headers = ['MFLOWR','CCTEMP','CCPRES','AMPRES',
@@ -57,7 +58,6 @@ def noz_vals(params, typ='arr'):
         k = params[10]
         M = params[11]
         
-    
     # Numerical evaluation
     
     Pt = Pc * (1 + (k - 1) / 2) ** (-k / (k-1))
@@ -82,7 +82,7 @@ def noz_vals(params, typ='arr'):
     
     # Evaluating uncertainties
     
-    sPt, sTt, sq, sR, sM, sAt = sp.symbols('sPt sTt sq sR sM sAt')
+    sPt, sTt, sq, sR, sM, sAt, sAe = sp.symbols('sPt sTt sq sR sM sAt sAe')
     
     eAt = (sq / sPt) * sp.sqrt((sR * sTt) / (sM * sk))
     edAt = sp.sqrt((sp.diff(eAt, sq) * dq)**2 + (sp.diff(eAt, sPt) * dPt)**2 + (sp.diff(eAt, sTt) * dTt)**2)
@@ -98,6 +98,9 @@ def noz_vals(params, typ='arr'):
     
     m = np.sqrt((2 / (k - 1)) * ((Pc / Pe)**((k-1)/k) - 1))
     Ae = (At / m) * ((1 + (k - 1) / 2 * m**2)/((k + 1) / 2))**((k+1)/(2*(k-1)))
+    
+    De = np.sqrt((4 * Ae) / (np.pi))
+    
     Ve = np.sqrt((2 * k / (k - 1)) * (R * Tc / M) * (1 - (Pe / Pc)**((k-1)/k)))
     F = q * Ve + (Pe - Pa) * Ae
 
@@ -121,6 +124,11 @@ def noz_vals(params, typ='arr'):
     eF = sq * sVe + (sPe - sPa) * sAe
     edF = sp.sqrt((sp.diff(eF, sq) * dq)**2 + (sp.diff(eF, sVe) * dVe)**2 + (sp.diff(eF, sPe) * dPe)**2 + (sp.diff(eF, sPa) * dPa)**2 + (sp.diff(eF, sAe) * dAe)**2)
     dF = edF.evalf(subs={sq: q, sVe: Ve, sPe: Pe, sPa: Pa, sAe: Ae})
+
+    eDe = sp.sqrt((4 * sAe) / sp.pi)
+    edDe = sp.sqrt((sp.diff(eDe, sAe) * dAe)**2)
+    
+    dDe = edDe.evalf(subs={sAe: Ae})
     
     params = {
         'throat pressure': [Pt, dPt],
@@ -129,6 +137,7 @@ def noz_vals(params, typ='arr'):
         'throat diameter' : [Dt, dDt],
         'exit mach' : [m, dm],
         'exit area' : [Ae, dAe],
+        'exit diameter' : [De, dDe],
         'exit velocity' : [Ve, dVe],
         'thrust' : [F, dF]
     }
@@ -136,7 +145,7 @@ def noz_vals(params, typ='arr'):
     return params
 
 def curvepoint(A, B, C, t):
-    return A*(1-t)**2 + B*2*t(1-t) + C*t**2
+    return B + (1 - t)**2 * (A - B) + t**2 * (C - B)
 
 def build():
 
@@ -144,26 +153,32 @@ def build():
     #
     # https://github.com/nycresistor/SDXF
 
-    p0 = Vec2D(0, 50)
-    p1 = Vec2D(100, 190)
-    p2 = Vec2D(300, 150)
-    p3 = Vec2D(0,0)
+    p0 = [0, 50]
+    p1 = [100, 190]
+    p2 = [300, 150]
+    p3 = [0, 0]
 
     b = lambda t: p1 + (1 - t)**2 * (p0 - p1) + t**2 * (p2 - p1)
 
     turtle = Turtle()
     turtle.penup()
 
-    for position in [p3, p2, p1, p0]:
+    for position in [Vec2D(p3[0], p3[1]), Vec2D(p2[0], p2[1]), Vec2D(p1[0], p1[1]), Vec2D(p0[0], p0[1])]:
         turtle.goto(position)
         turtle.dot()
 
     turtle.pendown()
 
     t = 0
+    pt = []
 
     while t <= 1.02:
-        position = b(t)
+        posx = curvepoint(p0[0], p1[0], p2[0], t)
+        posy = curvepoint(p0[1], p1[1], p2[1], t)
+
+        pt.append((posx, posy))
+
+        position = Vec2D(posx, posy)
 
         turtle.setheading(turtle.towards(position))
         turtle.goto(position)
@@ -172,8 +187,13 @@ def build():
 
     screen = Screen()
     screen.exitonclick()
+
+    return pt
+
+
     
 filename = r'D:/arsen/Documents/jhu/Missiles/builder/testcases/nozzle.txt'
 params = noz_vals(read_dat(filename))
+print(params)
 
-build()
+print(build())
