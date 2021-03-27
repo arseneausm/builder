@@ -141,6 +141,8 @@ def curvepoint(A, B, C, t):
 def build():
 
     # http://aspirespace.org.uk/downloads/Thrust%20optimised%20parabolic%20nozzle.pdf
+    #
+    # https://github.com/nycresistor/SDXF
 
     p0 = Vec2D(0, 50)
     p1 = Vec2D(100, 190)
