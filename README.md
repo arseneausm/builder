@@ -41,6 +41,6 @@ I'm hoping to implement a module for designing various gear configurations based
 
 ## 📣 Acknowledgements
 
-Builder's DXF processer is pretty much ripped straight from the SDXF library by nycresistor. Kudos.
+Builder's DXF processer is pretty much ripped straight from the SDXF library by nycresistor and some guy named Stani. Kudos.
 
 https://github.com/nycresistor/SDXF
