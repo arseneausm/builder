@@ -18,11 +18,11 @@ file_path = args.File
 out_path = args.Output
 
 try:
-    dat = open(file_path, "r")
-    d = dat.readlines()
+	dat = open(file_path, "r")
+	d = dat.readlines()
 except FileNotFoundError:
-    print('Err: File not found! Please check your path!')
-    exit()
+	print('Err: File not found! Please check your path!')
+	exit()
 
 dat = open(file_path, "r")
 d2 = dat.read()
@@ -32,17 +32,19 @@ found = False
 data = {}
 
 for line in d:
-    m_id = line.split()
+	m_id = line.split()
 
-    if m_id[0] == 'MODULE':
-        module = m_id[1]
-        found = True
+	if m_id[0] == 'MODULE':
+		module = m_id[1]
+		found = True
 
-        break
+		break
 
 if not found:
-    print('Err: Improper data file!')
-    exit()
+	print('Err: Improper data file!')
+	exit()
+
+d2 = d2 + '\nOUTPATH ' + out_path
 
 f = open("modules/tfile.dat", "a")
 f.write(d2)
