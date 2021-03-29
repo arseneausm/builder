@@ -1,0 +1,10 @@
+MODULE	NOZZLE
+
+MFLOWR	1.36	0	[kg/s]
+CCTEMP	284.8	0	[Kelvin]
+CCPRES	3.93	0	[MPa]
+AMPRES	0.10	0	[MPa]
+EXPRES	UNK		0	[MPa]
+
+K	1.40			[Specific heat ratio]
+M	28.9647			[Molar Mass]
